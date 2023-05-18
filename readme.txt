@@ -15,10 +15,10 @@ Conversely, this stuff won't take care of:
 
 ------------------------------------------------------
 
-But fine, let's look at what you have to do to make this work. And good news, most of what can be automated is. For the first time setup all you have to do is:
+But fine, let's look at what you have to do to make this work. And good news, most of what can be automated, is. For the first time setup all you have to do is:
 
 > Load the library into your game
-> Under 	game -> Features,			turn on In-Room descriptions
+> Under 	game -> Features,		turn on In-Room descriptions
 > Under 	game -> Room Description 	turn off auto-descriptions
 
 ------------------------------------------------------
