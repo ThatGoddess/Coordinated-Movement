@@ -1,0 +1,239 @@
+<library>
+
+  <type name="TG_Standard">
+    <x type="int">0</x>
+    <y type="int">0</y>
+    <protected type="boolean">false</protected>
+  </type>
+
+  <type name="editor_object">
+    <inherit name="TG_Standard" />
+    <drop type="script">
+        this.x = game.pov.x
+        this.y = game.pov.y
+        MoveObject (this, game.pov.parent)
+      </drop>
+  </type>
+
+  <type name="editor_room">
+    <inherit name="TG_Standard" />
+    <maxx type="int">0</maxx>
+    <maxy type="int">0</maxy>
+    <exitMessage>You can go</exitMessage>
+    <description type="script"><![CDATA[
+      // Sets variable of player's location to the format of x; y. Make sure the cases are set the same!
+      Location = game.pov.x + "; " + game.pov.y
+      ExitList = ScopeExits()
+      // Add your descriptions here. 0; 0 has been added to show how it should be set up, though this will execute anything you want it to.
+      switch (Location) {
+        case ("x; y") {
+          msg ("")
+        }
+      }
+      // This basically concludes your custom experience valued customer™. Now kindly let the script go through every visible object's description, thanks! If you don't want an object to generate automatically, don't give it an automatic description.
+      msg ("")
+      if (ListCount(ScopeReachableNotHeld()) > 0) {
+      }
+      foreach (i, ScopeReachableNotHeld ()) {
+        if (i.inroomdescription <> "" and HasAttribute (i, "inroomdescription")) {
+          OutputTextNoBr (Trim(i.inroomdescription) + " ")
+        }
+      }
+      // And now for the exits! I guess you *can* edit this one in the TG_Room Object type or under this room's exitMessage attribute Just keep in line with the format of "Message + Exits"
+      if (ListCount(ExitList) > 0) {
+        OutputTextNoBr ("</n>" + Trim(game.pov.parent.exitMessage) + " ")
+        foreach (i, ExitList) {
+          if (i.locked = false) {
+            OutputTextNoBr ("{command:" + i.alias + "}")
+            if (ListCount(ExitList) = (IndexOf(ExitList, i) + 1)) {
+              OutputTextNoBr (".")
+            }
+            else if (ListCount(ExitList) = IndexOf(ExitList)) {
+              OutputTextNoBr (" or ")
+            }
+            else {
+              OutputTextNoBr (", ")
+            }
+          }
+        }
+      }
+    ]]></description>
+  </type>
+
+  <type name="editor_player">
+    <inherit name="TG_Standard" />
+    <protected />
+  </type>
+
+  <type name="defaultexit">
+    <inherit name="TG_Standard" />
+    <runscript />
+    <static type="boolean">false</static>
+    <exitLocations type="stringlist">
+      <value>x; y</value>
+    </exitLocations>
+    <exitRoomDestination type="stringdictionary">
+      <item>
+        <key>x; y</key>
+        <value>LocationName; x; y</value>
+      </item>
+    </exitRoomDestination>
+    <blocked type="stringlist">
+      <value>x; y</value>
+    </blocked>
+    <script type="script"><![CDATA[
+      Location = game.pov.x + "; " + game.pov.y
+      Direction = StringListItem(this.alt, 0)
+      if (Location in this.exitRoomDestination) {
+        Destination = Split(StringDictionaryItem(this.exitRoomDestination, Location))
+        if (Location in this.exitRoomDesc) {
+          msg (StringDictionaryItem(this.exitRoomDesc, Location))
+        }
+        TempLoc = ListItem(Destination, 0)
+        TempLoc = GetObject (TempLoc)
+        TempX = ListItem(Destination, 1)
+        TempX = ToInt(TempX)
+        TempY = ListItem(Destination, 2)
+        TempY = ToInt(TempY)
+        player.x = TempX
+        player.y = TempY
+        MoveObject (player, TempLoc)
+      }
+      else {
+        switch (Direction) {
+          case ("w") {
+            game.pov.x = game.pov.x + 1
+          }
+          case ("e") {
+            game.pov.x = game.pov.x - 1
+          }
+          case ("n") {
+            game.pov.y = game.pov.y + 1
+          }
+          case ("s") {
+            game.pov.y = game.pov.y - 1
+          }
+          case ("nw") {
+            game.pov.x = game.pov.x - 1
+            game.pov.y = game.pov.y + 1
+          }
+          case ("ne") {
+            game.pov.x = game.pov.x + 1
+            game.pov.y = game.pov.y + 1
+          }
+          case ("sw") {
+            game.pov.x = game.pov.x - 1
+            game.pov.y = game.pov.y - 1
+          }
+          case ("se") {
+            game.pov.x = game.pov.x + 1
+            game.pov.y = game.pov.y - 1
+          }
+          default {
+            msg ("Sorry, but you either didn't set a direction, changed the exits alt attribute or tried to use this with up, down, in or out without setting it to be locational / a map exit.</n></n>I'm sorry dave, the y axis is too annoying to implement.")
+          }
+        }
+      }
+      SetStage (True)
+    ]]></script>
+    <exitRoomDesc type="scriptdictionary">
+      <item key="x; y">
+        msg ("Put Description here")
+      </item>
+    </exitRoomDesc>
+  </type>
+
+  <type name="TG_ObjectRoom">
+    <isroom />
+  </type>
+
+  <function name="SetStage" parameters="DoDesc"><![CDATA[
+    // A script for automatically setting up a room based on the players x and y coordinates.
+    // This includes:
+    // Making objects visible, if they're not set as protected ([Object].Protected = False) and both their x and y coordinates are the same as the player's.
+    // Running the [object].SetDesc Script on all visible objects to add their description to the Room's "[Room].FinalDesc" string along with the normal description.
+    // Displaying said description.
+    //
+    // What you need:
+    // x and y coordinates on room, player and objects (Contained in the relevant TG Object types)
+    // Room description set up as script.
+    //
+    // The first Part is run on the first time to add all exits as a list to their relevant rooms. This is because Quest is terrible and doesn't let you select all exits in a room, only the visible ones!
+    firsttime {
+      Exits = AllExits()
+      foreach (i, AllRooms()) {
+        i.exits = NewObjectList()
+        foreach (i2, Exits) {
+          if (i2.parent = i) {
+            list add (i.exits, i2)
+          }
+        }
+        foreach (i2, i.exits) {
+          list remove (Exits, ListItem(Exits, ListCount(i.exits) - 1))
+        }
+      }
+    }
+    Location = player.x + "; " + player.y
+    Children = GetDirectChildren (game.pov.parent)
+    list remove (Children, game.pov)
+    LocalExits = NewObjectList()
+    foreach (i, game.pov.parent.exits) {
+      list add (LocalExits, i)
+    }
+    if (ListCount(Children) > 0) {
+      foreach (i, Children) {
+        if (i.protected = False and i.x = game.pov.x and i.y = game.pov.y) {
+          // Sets the object visible
+          i.visible = True
+        }
+        else if (i.protected = false) {
+          // If the object isn't included in the if statement because it's not in the same place, it's deactivated
+          i.visible = False
+        }
+      }
+    }
+    // Regulating the Exits
+    if (ListCount(LocalExits) > 0) {
+      foreach (i, LocalExits) {
+        if (i.protected = false) {
+          Strange = ListItem(i.alt, 0)
+          // Behold the mother of all ifs. Just don't worry about it. It only checks if the player is about to go out of bounds.
+          if ((game.pov.x = 0 and (Strange = "w" or Strange = "sw" or Strange = "nw")) or (game.pov.x = game.pov.parent.maxx and (Strange = "e" or Strange = "se" or Strange = "ne")) or (game.pov.y = 0 and (Strange = "s" or Strange = "sw" or Strange = "se")) or (game.pov.y = game.pov.parent.maxy and (Strange = "n" or Strange = "nw" or Strange = "ne"))) {
+            i.visible = false
+          }
+          else {
+            i.visible = true
+          }
+          foreach (i2, i.blocked) {
+            if (i2 = Location) {
+              i.visible = false
+            }
+          }
+          if (i.static = true and (ListContains(i.blocked, Location))) {
+            i.visible = true
+          }
+          else if (i.static = true and (ListContains(i.blocked, Location) = false)) {
+            i.visible = false
+          }
+        }
+      }
+    }
+    // Calling the Description
+    if (DoDesc = True) {
+      do (game.pov.parent, "description")
+    }
+  ]]></function>
+
+  <function name="AddExit" parameters="RoomVar, ExitName">
+    // Takes RoomVar and ExitVar as paramenters (RoomName; ExitName)
+    // Changes a variable that doesn't even exist until your game starts, don't worry 'bout it bbg
+    list add (RoomVar.exits, ExitName)
+  </function>
+
+  <function name="RemoveExit" parameters="RoomVar, ExitVar">
+    // Takes RoomVar and ExitVar as paramenters (RoomName; ExitName)
+    // Changes a variable that doesn't even exist until your game starts, don't worry 'bout it bbg
+    list remove (RoomVar.exits, ExitName)
+  </function>
+
+</library>
