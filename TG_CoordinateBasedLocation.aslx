@@ -39,22 +39,18 @@
           OutputTextNoBr (Trim(i.inroomdescription) + " ")
         }
       }
-      // And now for the exits! I guess you *can* edit this one in the TG_Room Object type or under this room's exitMessage attribute Just keep in line with the format of "Message + Exits"
+      // And now for the exits! I guess you *can* edit this one in this room's exitMessage attribute Just keep in line with the format of "Message + Exits"
       if (ListCount(ExitList) > 0) {
         OutputTextNoBr ("</n>" + Trim(game.pov.parent.exitMessage) + " ")
-        foreach (i, ExitList) {
-          if (i.locked = false) {
-            OutputTextNoBr ("{command:" + i.alias + "}")
-            if (ListCount(ExitList) = (IndexOf(ExitList, i) + 1)) {
-              OutputTextNoBr (".")
-            }
-            else if (ListCount(ExitList) = IndexOf(ExitList)) {
-              OutputTextNoBr (" or ")
-            }
-            else {
-              OutputTextNoBr (", ")
-            }
-          }
+        foreach (i, ScopeExits()) {
+
+          Count = ListCount(ScopeExits())
+          Index = IndexOf(ScopeExits(), i)
+
+          OutputTextNoBr("{command:" + i.alias + "}")
+          if(Count = (Index + 1)) {OutputTextNoBr(".")}
+          else if (Count = (Index + 2)) {OutputTextNoBr(" or ")}
+          else {OutputTextNoBr(", ")}
         }
       }
     ]]></description>
@@ -174,12 +170,9 @@
             list add (i.exits, i2)
           }
         }
-        foreach (i2, i.exits) {
-          list remove (Exits, ListItem(Exits, ListCount(i.exits) - 1))
-        }
       }
     }
-    Location = player.x + "; " + player.y
+    Location = game.pov.x + "; " + game.pov.y
     Children = GetDirectChildren (game.pov.parent)
     list remove (Children, game.pov)
     LocalExits = NewObjectList()
