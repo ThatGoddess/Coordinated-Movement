@@ -28,8 +28,11 @@ And that's it! Sadly the per-room setup is a lot more since, well, I can't exact
 	Room:
 
 > Create the room
+
 > Set the maxx and maxy attributes to the respective maximums of the "box" you want your place to work in
-> Under the descList attribute, add the various coordinates your room possesses along with their descriptions. There's an example to see how your entries should look.
+
+> Make the Description Script editable and add a case  for every coordinate inside your room, along with its description. There's an example to see how your entries should look.
+
 > If you've selected a room/object combination, you HAVE to inherit the "TG_ObjectRoom" attribute, or manually create a "isroom" attribute and set it to true.
 
 	Exits:
@@ -47,7 +50,9 @@ And that's it! Sadly the per-room setup is a lot more since, well, I can't exact
 	Objects:
 
 > Set the x / y attributes to where you want your object to be at.
+
 > Use the In-Room Description under Setup to set what should be displayed, if the object is visible. Leaving it empty will skip the object for descriptions.
+
 > If you don't want the automatic script to mess with your object, set protected to "true". This will completely skip it over, useful for things that should be seen from everywhere within the location.
 
 ------------------------------------------------------
