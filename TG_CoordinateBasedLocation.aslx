@@ -69,6 +69,12 @@
     <inherit name="TG_Standard" />
     <runscript />
     <static type="boolean">false</static>
+    <visible type="boolean">true</visible>
+    <scenery type="boolean">false</scenery>
+    <locked type="boolean">false</locked>
+    <lockmessage type="string">That way is locked</lockmessage>
+    <lookonly type="boolean">false</lookonly>
+    <lightstrength type="string"></lightstrength>
     <exitLocations type="stringlist">
       <value>x; y</value>
     </exitLocations>
