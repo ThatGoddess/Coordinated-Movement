@@ -41,7 +41,9 @@
       }
       // And now for the exits! I guess you *can* edit this one in this room's exitMessage attribute Just keep in line with the format of "Message + Exits"
       if (ListCount(ExitList) > 0) {
-        OutputTextNoBr ("</n>" + Trim(game.pov.parent.exitMessage) + " ")
+        msg("")
+        msg("")
+        OutputTextNoBr (Trim(game.pov.parent.exitMessage) + " ")
         foreach (i, ScopeExits()) {
 
           Count = ListCount(ScopeExits())
