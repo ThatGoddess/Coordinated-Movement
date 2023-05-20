@@ -106,10 +106,10 @@
       else {
         switch (Direction) {
           case ("w") {
-            game.pov.x = game.pov.x + 1
+            game.pov.x = game.pov.x - 1
           }
           case ("e") {
-            game.pov.x = game.pov.x - 1
+            game.pov.x = game.pov.x + 1
           }
           case ("n") {
             game.pov.y = game.pov.y + 1
