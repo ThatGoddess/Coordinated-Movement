@@ -21,29 +21,40 @@
     <maxy type="int">0</maxy>
     <exitMessage>You can go</exitMessage>
     <description type="script"><![CDATA[
-      // Sets variable of player's location to the format of x; y. Make sure the cases are set the same!
+      //Sets variable of player's location to the format of x; y. Make sure the cases are set the same!
+
       Location = game.pov.x + "; " + game.pov.y
       ExitList = ScopeExits()
-      // Add your descriptions here. 0; 0 has been added to show how it should be set up, though this will execute anything you want it to.
+
+      //Add your descriptions here. 0; 0 has been added to show how it should be set up, though this will execute anything you want it to.
+
       switch (Location) {
-        case ("x; y") {
-          msg ("")
-        }
+        case("0; 0") {msg("")}
       }
-      // This basically concludes your custom experience valued customer™. Now kindly let the script go through every visible object's description, thanks! If you don't want an object to generate automatically, don't give it an automatic description.
-      msg ("")
+      //This basically concludes your custom experience valued customer™. Now kindly let the script go through every visible object's description, thanks! If you don't want an object to generate automatically, don't give it an automatic description.
+
+
+      msg("")
       if (ListCount(ScopeReachableNotHeld()) > 0) {
-      }
-      foreach (i, ScopeReachableNotHeld ()) {
-        if (i.inroomdescription <> "" and HasAttribute (i, "inroomdescription")) {
-          OutputTextNoBr (Trim(i.inroomdescription) + " ")
+        x = 0
+        foreach (i, ScopeReachableNotHeld ()) {
+
+          if(i.inroomdescription <> "" and HasAttribute (i, "inroomdescription")){
+            OutputTextNoBr(Trim(i.inroomdescription) + " ")
+            x = x + 1
+          }
+        }
+        if(x > 0) {
+          msg("")
+          msg("")
         }
       }
-      // And now for the exits! I guess you *can* edit this one in this room's exitMessage attribute Just keep in line with the format of "Message + Exits"
+
+      //And now for the exits! I guess you *can* edit this one in this room's exitMessage attribute Just keep in line with the format of "Message + Exits"
+
       if (ListCount(ExitList) > 0) {
-        msg("")
-        msg("")
-        OutputTextNoBr (Trim(game.pov.parent.exitMessage) + " ")
+
+        OutputTextNoBr ("</n>" + Trim(game.pov.parent.exitMessage) + " ")
         foreach (i, ScopeExits()) {
 
           Count = ListCount(ScopeExits())
@@ -51,7 +62,7 @@
 
           OutputTextNoBr("{command:" + i.alias + "}")
           if(Count = (Index + 1)) {OutputTextNoBr(".")}
-          else if (Count = (Index + 2)) {OutputTextNoBr(" or ")}
+          else if (Count = Index - 1) {OutputTextNoBr(" or ")}
           else {OutputTextNoBr(", ")}
         }
       }
