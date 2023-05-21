@@ -29,7 +29,7 @@
       //Add your descriptions here. 0; 0 has been added to show how it should be set up, though this will execute anything you want it to.
 
       switch (Location) {
-        case("0; 0") {msg("")}
+        case("x; y") {msg("")}
       }
       //This basically concludes your custom experience valued customer™. Now kindly let the script go through every visible object's description, thanks! If you don't want an object to generate automatically, don't give it an automatic description.
 
