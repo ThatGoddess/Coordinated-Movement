@@ -62,7 +62,7 @@
 
           OutputTextNoBr("{command:" + i.alias + "}")
           if(Count = (Index + 1)) {OutputTextNoBr(".")}
-          else if (Count = Index - 1) {OutputTextNoBr(" or ")}
+          else if (Count = Index + 2) {OutputTextNoBr(" or ")}
           else {OutputTextNoBr(", ")}
         }
       }
