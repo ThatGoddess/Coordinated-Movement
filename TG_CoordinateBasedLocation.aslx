@@ -99,10 +99,12 @@
     <script type="script"><![CDATA[
       Location = game.pov.x + "; " + game.pov.y
       Direction = StringListItem(this.alt, 0)
-      if (Location in this.exitRoomDestination) {
+
+      if (Location in this.exitLocations) {
+
         Destination = Split(StringDictionaryItem(this.exitRoomDestination, Location))
         if (Location in this.exitRoomDesc) {
-          msg (StringDictionaryItem(this.exitRoomDesc, Location))
+          msg(StringDictionaryItem(this.exitRoomDesc, Location))
         }
         TempLoc = ListItem(Destination, 0)
         TempLoc = GetObject (TempLoc)
@@ -110,46 +112,37 @@
         TempX = ToInt(TempX)
         TempY = ListItem(Destination, 2)
         TempY = ToInt(TempY)
-        player.x = TempX
-        player.y = TempY
-        MoveObject (player, TempLoc)
+        game.pov.x = TempX
+        game.pov.y = TempY
+        MoveObject(game.pov, TempLoc)
+
+
       }
       else {
-        switch (Direction) {
-          case ("w") {
-            game.pov.x = game.pov.x - 1
-          }
-          case ("e") {
-            game.pov.x = game.pov.x + 1
-          }
-          case ("n") {
-            game.pov.y = game.pov.y + 1
-          }
-          case ("s") {
-            game.pov.y = game.pov.y - 1
-          }
-          case ("nw") {
-            game.pov.x = game.pov.x - 1
-            game.pov.y = game.pov.y + 1
-          }
-          case ("ne") {
-            game.pov.x = game.pov.x + 1
-            game.pov.y = game.pov.y + 1
-          }
-          case ("sw") {
-            game.pov.x = game.pov.x - 1
-            game.pov.y = game.pov.y - 1
-          }
-          case ("se") {
-            game.pov.x = game.pov.x + 1
-            game.pov.y = game.pov.y - 1
-          }
-          default {
-            msg ("Sorry, but you either didn't set a direction, changed the exits alt attribute or tried to use this with up, down, in or out without setting it to be locational / a map exit.</n></n>I'm sorry dave, the y axis is too annoying to implement.")
-          }
-        }
+
+        switch(Direction){
+        case("w"){game.pov.x = game.pov.x - 1}
+        case("e"){game.pov.x = game.pov.x + 1}
+        case("n"){game.pov.y = game.pov.y + 1}
+        case("s"){game.pov.y = game.pov.y - 1}
+        case("nw"){
+          game.pov.x = game.pov.x - 1
+          game.pov.y = game.pov.y + 1}
+        case("ne"){
+          game.pov.x = game.pov.x + 1
+          game.pov.y = game.pov.y + 1}
+        case("sw"){
+          game.pov.x = game.pov.x - 1
+          game.pov.y = game.pov.y - 1}
+        case("se"){
+          game.pov.x = game.pov.x + 1
+          game.pov.y = game.pov.y - 1}
+        default {msg ("Sorry, but you either didn't set a direction, changed the exits alt attribute or tried to use this with up, down, in or out without setting it to be locational / a map exit.</n></n>I'm sorry dave, the y axis is too annoying to implement.")}
       }
-      SetStage (True)
+
+    }
+
+    SetStage(True)
     ]]></script>
     <exitRoomDesc type="scriptdictionary">
       <item key="x; y">
@@ -216,6 +209,9 @@
           else {
             i.visible = true
           }
+
+          if (ListContains(i.exitLocations, Location)){i.visible = true}
+
           foreach (i2, i.blocked) {
             if (i2 = Location) {
               i.visible = false
