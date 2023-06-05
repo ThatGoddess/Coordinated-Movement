@@ -65,7 +65,7 @@
     <appliesto>(function)SetStage</appliesto>
     <display>Set the stage</display>
     <category>Movement</category>
-    <create>SetStage(False)</create>
+    <create>SetStage(false)</create>
     <add>Set Stage</add>
  
     <control>
@@ -77,7 +77,7 @@
       <controltype>expression</controltype>
       <attribute>0</attribute>
       <simple>Text</simple>
-      <simpleeditor>textbox</simpleeditor>
+      <simpleeditor>boolean</simpleeditor>
     </control>
   </editor>
 
