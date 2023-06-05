@@ -8,39 +8,45 @@
 
   <type name="editor_object">
     <inherit name="TG_Standard" />
+    <inroomdesc type="string" />
     <drop type="script">
-        this.x = game.pov.x
-        this.y = game.pov.y
-        MoveObject (this, game.pov.parent)
-      </drop>
+      this.x = game.pov.x
+      this.y = game.pov.y
+      MoveObject (this, game.pov.parent)
+    </drop>
   </type>
 
   <type name="editor_room">
     <inherit name="TG_Standard" />
     <maxx type="int">0</maxx>
     <maxy type="int">0</maxy>
+    <inroomdesc type="string"/>
+
     <exitMessage>You can go</exitMessage>
     <description type="script"><![CDATA[
-      //Sets variable of player's location to the format of x; y. Make sure the cases are set the same!
+      //Sets variable of player's location to the format of x; y. Make sure your descriptions are set the same!
 
+      firsttime{
+        if(not hasAttribute(this, "descList")){this.descList = NewScriptDictionary()}
+      }
       Location = game.pov.x + "; " + game.pov.y
       ExitList = ScopeExits()
 
-      //Add your descriptions here. 0; 0 has been added to show how it should be set up, though this will execute anything you want it to.
+      Log("Location has: " + DictionaryCount(this.descList) + " possible descriptions.")
 
-      switch (Location) {
-        case("x; y") {msg("")}
+      if(DictionaryContains(this.descList, Location)){
+        Log("Attempting to call Description.")
+        invoke(ScriptDictionaryItem(this.descList, Location))
+        Log("Description called successfully")
       }
-      //This basically concludes your custom experience valued customer™. Now kindly let the script go through every visible object's description, thanks! If you don't want an object to generate automatically, don't give it an automatic description.
-
 
       msg("")
       if (ListCount(ScopeReachableNotHeld()) > 0) {
         x = 0
         foreach (i, ScopeReachableNotHeld ()) {
 
-          if(i.inroomdescription <> "" and HasAttribute (i, "inroomdescription")){
-            OutputTextNoBr(Trim(i.inroomdescription) + " ")
+          if(i.inroomdesc <> ""){
+            OutputTextNoBr(Trim(i.inroomdesc) + " ")
             x = x + 1
           }
         }
@@ -71,7 +77,6 @@
 
   <type name="editor_player">
     <inherit name="TG_Standard" />
-    <protected />
   </type>
 
   <type name="defaultexit">
@@ -81,6 +86,7 @@
     <visible type="boolean">true</visible>
     <scenery type="boolean">false</scenery>
     <locked type="boolean">false</locked>
+    <isExit type="boolean">false</isExit>
     <lockmessage type="string">That way is locked</lockmessage>
     <lookonly type="boolean">false</lookonly>
     <lightstrength type="string"></lightstrength>
@@ -100,57 +106,49 @@
       Location = game.pov.x + "; " + game.pov.y
       Direction = StringListItem(this.alt, 0)
 
-      if (Location in this.exitLocations) {
+      if (Location in this.exitRoomDestination) {
 
         Destination = Split(StringDictionaryItem(this.exitRoomDestination, Location))
         if (Location in this.exitRoomDesc) {
           msg(StringDictionaryItem(this.exitRoomDesc, Location))
         }
         TempLoc = ListItem(Destination, 0)
-        TempLoc = GetObject (TempLoc)
-        TempX = ListItem(Destination, 1)
+       TempLoc = GetObject (TempLoc)
+       TempX = ListItem(Destination, 1)
+        //TempX = Trim(TempX)
         TempX = ToInt(TempX)
         TempY = ListItem(Destination, 2)
+        TempY = Trim(TempY)
         TempY = ToInt(TempY)
         game.pov.x = TempX
         game.pov.y = TempY
         MoveObject(game.pov, TempLoc)
-
-
       }
       else {
 
         switch(Direction){
-        case("w"){game.pov.x = game.pov.x - 1}
-        case("e"){game.pov.x = game.pov.x + 1}
-        case("n"){game.pov.y = game.pov.y + 1}
-        case("s"){game.pov.y = game.pov.y - 1}
-        case("nw"){
-          game.pov.x = game.pov.x - 1
-          game.pov.y = game.pov.y + 1}
-        case("ne"){
-          game.pov.x = game.pov.x + 1
-          game.pov.y = game.pov.y + 1}
-        case("sw"){
-          game.pov.x = game.pov.x - 1
-          game.pov.y = game.pov.y - 1}
-        case("se"){
-          game.pov.x = game.pov.x + 1
-          game.pov.y = game.pov.y - 1}
-        default {msg ("Sorry, but you either didn't set a direction, changed the exits alt attribute or tried to use this with up, down, in or out without setting it to be locational / a map exit.</n></n>I'm sorry dave, the y axis is too annoying to implement.")}
+          case("w"){game.pov.x = game.pov.x - 1}
+          case("e"){game.pov.x = game.pov.x + 1}
+          case("n"){game.pov.y = game.pov.y + 1}
+          case("s"){game.pov.y = game.pov.y - 1}
+          case("nw"){
+            game.pov.x = game.pov.x - 1
+            game.pov.y = game.pov.y + 1}
+          case("ne"){
+            game.pov.x = game.pov.x + 1
+            game.pov.y = game.pov.y + 1}
+          case("sw"){
+            game.pov.x = game.pov.x - 1
+            game.pov.y = game.pov.y - 1}
+          case("se"){
+            game.pov.x = game.pov.x + 1
+            game.pov.y = game.pov.y - 1}
+          default {msg ("Sorry, but you either didn't set a direction, changed the exits alt attribute or tried to use this with up, down, in or out without setting it to be locational / a map exit.</n></n>I'm sorry dave, the z axis is too annoying to implement.")}
+        }
       }
-
-    }
-
-    SetStage(True)
+      SetStage(True)
     ]]></script>
-    <exitRoomDesc type="scriptdictionary">
-      <item key="x; y">
-        msg ("Put Description here")
-      </item>
-    </exitRoomDesc>
   </type>
-
   <type name="TG_ObjectRoom">
     <isroom />
   </type>
@@ -198,6 +196,10 @@
       }
     }
     // Regulating the Exits
+    firsttime{
+      if(hasAttribute(this, exitRoomDesc) = false){this.exitRoomDesc = NewScriptDictionary()}
+    }
+
     if (ListCount(LocalExits) > 0) {
       foreach (i, LocalExits) {
         if (i.protected = false) {
@@ -243,5 +245,4 @@
     // Changes a variable that doesn't even exist until your game starts, don't worry 'bout it bbg
     list remove (RoomVar.exits, ExitName)
   </function>
-
 </library>
