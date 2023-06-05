@@ -1,0 +1,222 @@
+<library>
+ <editor>
+    <appliesto>(function)AddExit</appliesto>
+    <display>Add an Exit to the Script</display>
+    <category>Movement</category>
+    <create>AddExit(, "")</create>
+    <add>Add an Exit</add>
+ 
+    <control>
+      <controltype>label</controltype>
+      <caption>Add Exit</caption>
+    </control>
+ 
+    <control>
+      <controltype>expression</controltype>
+      <attribute>1</attribute>
+      <simple>Text</simple>
+      <simpleeditor>textbox</simpleeditor>
+    </control>
+
+    <control>
+      <controltype>label</controltype>
+      <caption>to room</caption>
+    </control>
+
+    <control>
+      <controltype>expression</controltype>
+      <attribute>0</attribute>
+      <simple>Room</simple>
+      <simpleeditor>objects</simpleeditor>
+    </control>
+ </editor>
+ <editor>
+    <appliesto>(function)RemoveExit</appliesto>
+    <display>Delete an Exit from the Script</display>
+    <category>Movement</category>
+    <create>RemoveExit(, "")</create>
+    <add>Remove an Exit</add>
+ 
+    <control>
+      <controltype>label</controltype>
+      <caption>Remove Exit</caption>
+    </control>
+ 
+    <control>
+      <controltype>expression</controltype>
+      <attribute>1</attribute>
+      <simple>Text</simple>
+      <simpleeditor>textbox</simpleeditor>
+    </control>
+
+    <control>
+      <controltype>label</controltype>
+      <caption>from room</caption>
+    </control>
+
+    <control>
+      <controltype>expression</controltype>
+      <attribute>0</attribute>
+      <simple>Room</simple>
+      <simpleeditor>objects</simpleeditor>
+    </control>
+ </editor>
+ <editor>
+    <appliesto>(function)SetStage</appliesto>
+    <display>Set the stage</display>
+    <category>Movement</category>
+    <create>SetStage(False)</create>
+    <add>Set Stage</add>
+ 
+    <control>
+      <controltype>label</controltype>
+      <caption>Run description after setting the stage?</caption>
+    </control>
+ 
+    <control>
+      <controltype>expression</controltype>
+      <attribute>0</attribute>
+      <simple>Text</simple>
+      <simpleeditor>textbox</simpleeditor>
+    </control>
+  </editor>
+
+
+  <tab>
+    <parent>_ObjectEditor</parent>
+    <caption>Object Settings</caption>
+    <mustinherit>defaultobject</mustinherit>
+    
+    <control>
+     <controltype>checkbox</controltype>
+     <caption>Ignore this object?</caption>
+     <attribute>protected</attribute>
+     <mustnotinherit>editor_player</mustnotinherit>
+    </control>
+
+    <control>
+     <controltype>number</controltype>
+     <caption>X Axis</caption>
+     <attribute>x</attribute>
+     <minimum>0</minimum>
+     <onlydisplayif>not this.protected</onlydisplayif>
+    </control>
+
+    <control>
+     <controltype>number</controltype>
+     <caption>Y Axis</caption>
+     <attribute>y</attribute>
+     <minimum>0</minimum>
+     <onlydisplayif>not this.protected</onlydisplayif>
+    </control>
+
+    <control>
+     <controltype>richtext</controltype>
+     <caption>In-Room Description</caption>
+     <attribute>inroomdesc</attribute>
+     <mustinherit>defaultobject</mustinherit>
+     <expand/>
+    </control>
+  </tab>
+  <tab>
+
+    <parent>_ObjectEditor</parent>
+    <caption>Room Settings</caption>
+    <mustinherit>editor_room; TG_ObjectRoom</mustinherit>
+
+    <control>
+     <controltype>number</controltype>
+     <caption>Max X</caption>
+     <attribute>maxx</attribute>
+     <minimum>0</minimum>
+    </control>
+
+    <control>
+     <controltype>number</controltype>
+     <caption>Max Y</caption>
+     <attribute>maxy</attribute>
+     <minimum>0</minimum>
+    </control>
+
+    <control>
+      <controltype>textbox</controltype>
+      <caption>Exit Message</caption>
+      <attribute>exitMessage</attribute>
+    </control>
+
+      <control>
+        <controltype>scriptdictionary</controltype>
+        <caption>Descriptions</caption>
+        <keyprompt>Please enter the coordinates ("x; y")</keyprompt>
+        <attribute>descList</attribute>
+        <expand/>
+      </control>
+  </tab>
+
+  <tab>
+    <parent>_ExitEditor</parent>
+    <caption>Exit Settings</caption>
+    <mustinherit>defaultexit</mustinherit>
+
+    <control>
+     <controltype>checkbox</controltype>
+     <caption>Ignore this exit</caption>
+     <attribute>protected</attribute>
+    </control>
+
+    <control>
+     <controltype>checkbox</controltype>
+     <caption>Is a map Exit</caption>
+     <attribute>isExit</attribute>
+    </control>
+
+    <control>
+     <controltype>checkbox</controltype>
+     <caption>Static Exit</caption>
+     <attribute>static</attribute>
+    </control>
+
+    <control>
+      <controltype>label</controltype>
+      <caption>Where should this Exit NOT appear?</caption>
+      <onlydisplayif>not this.protected and not this.static</onlydisplayif>
+    </control>
+
+    <control>
+      <controltype>label</controltype>
+      <caption>Where should this Exit appear?</caption>
+      <onlydisplayif>not this.protected and this.static</onlydisplayif>
+    </control>
+
+    <control>
+      <controltype>list</controltype>
+      <attribute>blocked</attribute>
+      <onlydisplayif>not this.protected</onlydisplayif>
+      <editprompt>Please enter some coordinates (x; y)</editprompt>
+    </control>
+  </tab>
+
+  <tab>
+    <parent>_ExitEditor</parent>
+    <caption>Map Exits</caption>
+    <mustinherit>defaultexit</mustinherit>
+    <onlydisplayif>this.isExit</onlydisplayif>
+
+    <control>
+      <controltype>stringdictionary</controltype>
+      <caption>Exit Locations</caption>
+      <keyprompt>Where can the player leave? (x; y)</keyprompt>
+      <valueprompt>Enter the destination (Location; x; y)</valueprompt>      
+      <attribute>exitRoomDestination</attribute>
+      <expand/>
+    </control>
+
+    <control>
+      <controltype>scriptdictionary</controltype>
+      <caption>Exit Scripts</caption>
+      <keyprompt>Which Exit Location is this for? (x; y)</keyprompt>      
+      <attribute>exitRoomDesc</attribute>
+      <expand/>
+    </control>
+  </tab>
+</library>
