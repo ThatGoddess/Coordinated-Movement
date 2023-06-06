@@ -196,12 +196,11 @@
       }
     }
     // Regulating the Exits
-    firsttime{
-      if(hasAttribute(this, exitRoomDesc) = false){this.exitRoomDesc = NewScriptDictionary()}
-    }
+      if(hasAttribute(game.pov.parent, "exitRoomDesc") = false){game.pov.parent.exitRoomDesc = NewScriptDictionary()}
 
     if (ListCount(LocalExits) > 0) {
       foreach (i, LocalExits) {
+
         if (i.protected = false) {
           Strange = ListItem(i.alt, 0)
           // Behold the mother of all ifs. Just don't worry about it. It only checks if the player is about to go out of bounds.
@@ -228,10 +227,12 @@
         }
       }
     }
+
     // Calling the Description
-    if (DoDesc = True) {
+    if (DoDesc = True and hasAttribute(game.pov.parent, "description")) {
       do (game.pov.parent, "description")
     }
+    else if(hasAttribute(game.pov.parent, "description") = false) {Log("[ERROR] There is no description to call. Is this an object-room?")}
   ]]></function>
 
   <function name="AddExit" parameters="RoomVar, ExitName">
