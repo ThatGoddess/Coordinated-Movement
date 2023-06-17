@@ -31,13 +31,9 @@
       }
       Location = game.pov.x + "; " + game.pov.y
       ExitList = ScopeExits()
-
-      Log("Location has: " + DictionaryCount(this.descList) + " possible descriptions.")
-
       if(DictionaryContains(this.descList, Location)){
-        Log("Attempting to call Description.")
         invoke(ScriptDictionaryItem(this.descList, Location))
-        Log("Description called successfully")
+        Log("[EXITS] Description called successfully")
       }
 
       msg("")
@@ -92,12 +88,9 @@
       Location = game.pov.x + "; " + game.pov.y
       ExitList = ScopeExits()
 
-      Log("Location has: " + DictionaryCount(this.descList) + " possible descriptions.")
-
       if(DictionaryContains(this.descList, Location)){
-        Log("Attempting to call Description.")
         invoke(ScriptDictionaryItem(this.descList, Location))
-        Log("Description called successfully")
+        Log("[EXITS] Description called successfully")
       }
 
       msg("")
@@ -143,11 +136,11 @@
     <inherit name="TG_Standard" />
     <runscript />
     <static type="boolean">false</static>
-    <visible type="boolean">true</visible>
+    <visible />
     <scenery type="boolean">false</scenery>
     <locked type="boolean">false</locked>
     <isExit type="boolean">false</isExit>
-    <lockmessage type="string">That way is locked</lockmessage>
+    <lockmessage>That way is locked</lockmessage>
     <lookonly type="boolean">false</lookonly>
     <lightstrength type="string"></lightstrength>
     <exitLocations type="stringlist">
@@ -165,48 +158,47 @@
     <script type="script"><![CDATA[
       Location = game.pov.x + "; " + game.pov.y
       Direction = StringListItem(this.alt, 0)
-
-      if (Location in this.exitRoomDestination) {
-
-        Destination = Split(StringDictionaryItem(this.exitRoomDestination, Location))
-        if (Location in this.exitRoomDesc) {
-          msg(StringDictionaryItem(this.exitRoomDesc, Location))
+      if (hasAttribute(this, "exitRoomScript") = True) {
+        if (Location in this.exitRoomScript) {
+          invoke (ScriptDictionaryItem(this.exitRoomScript, Location))
         }
-        TempLoc = ListItem(Destination, 0)
-       TempLoc = GetObject (TempLoc)
-       TempX = ListItem(Destination, 1)
-        //TempX = Trim(TempX)
-        TempX = ToInt(TempX)
-        TempY = ListItem(Destination, 2)
-        TempY = Trim(TempY)
-        TempY = ToInt(TempY)
-        game.pov.x = TempX
-        game.pov.y = TempY
-        MoveObject(game.pov, TempLoc)
       }
       else {
-
-        switch(Direction){
-          case("w"){game.pov.x = game.pov.x - 1}
-          case("e"){game.pov.x = game.pov.x + 1}
-          case("n"){game.pov.y = game.pov.y + 1}
-          case("s"){game.pov.y = game.pov.y - 1}
-          case("nw"){
+        switch (Direction) {
+          case ("w") {
             game.pov.x = game.pov.x - 1
-            game.pov.y = game.pov.y + 1}
-          case("ne"){
+          }
+          case ("e") {
             game.pov.x = game.pov.x + 1
-            game.pov.y = game.pov.y + 1}
-          case("sw"){
+          }
+          case ("n") {
+            game.pov.y = game.pov.y + 1
+          }
+          case ("s") {
+            game.pov.y = game.pov.y - 1
+          }
+          case ("nw") {
             game.pov.x = game.pov.x - 1
-            game.pov.y = game.pov.y - 1}
-          case("se"){
+            game.pov.y = game.pov.y + 1
+          }
+          case ("ne") {
             game.pov.x = game.pov.x + 1
-            game.pov.y = game.pov.y - 1}
-          default {msg ("Sorry, but you either didn't set a direction, changed the exits alt attribute or tried to use this with up, down, in or out without setting it to be locational / a map exit.</n></n>I'm sorry dave, the z axis is too annoying to implement.")}
+            game.pov.y = game.pov.y + 1
+          }
+          case ("sw") {
+            game.pov.x = game.pov.x - 1
+            game.pov.y = game.pov.y - 1
+          }
+          case ("se") {
+            game.pov.x = game.pov.x + 1
+            game.pov.y = game.pov.y - 1
+          }
+          default {
+            msg ("Sorry, but you either didn't set a direction, changed the exits alt attribute or tried to use this with up, down, in or out without setting it to be locational / a map exit.</n></n>I'm sorry dave, the y axis is too annoying to implement.")
+          }
         }
+        SetStage (True)
       }
-      SetStage(True)
     ]]></script>
   </type>
 
@@ -254,11 +246,8 @@
       }
     }
     // Regulating the Exits
-      if(hasAttribute(game.pov.parent, "exitRoomDesc") = false){game.pov.parent.exitRoomDesc = NewScriptDictionary()}
-
     if (ListCount(LocalExits) > 0) {
       foreach (i, LocalExits) {
-
         if (i.protected = false) {
           Strange = ListItem(i.alt, 0)
           // Behold the mother of all ifs. Just don't worry about it. It only checks if the player is about to go out of bounds.
@@ -268,9 +257,11 @@
           else {
             i.visible = true
           }
-
-          if (ListContains(i.exitLocations, Location)){i.visible = true}
-
+          if (hasAttribute(i, "exitRoomScript")) {
+            if (DictionaryContains(i.exitRoomScript, Location)) {
+              i.visible = true
+            }
+          }
           foreach (i2, i.blocked) {
             if (i2 = Location) {
               i.visible = false
@@ -285,12 +276,10 @@
         }
       }
     }
-
     // Calling the Description
-    if (DoDesc = True and hasAttribute(game.pov.parent, "description")) {
+    if (DoDesc = True) {
       do (game.pov.parent, "description")
     }
-    else if(hasAttribute(game.pov.parent, "description") = false) {Log("[ERROR] There is no description to call. Is this an object-room?")}
   ]]></function>
 
   <function name="AddExit" parameters="RoomVar, ExitName">
