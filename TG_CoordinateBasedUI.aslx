@@ -203,19 +203,10 @@
     <onlydisplayif>this.isExit</onlydisplayif>
 
     <control>
-      <controltype>stringdictionary</controltype>
-      <caption>Exit Locations</caption>
-      <keyprompt>Where can the player leave? (x; y)</keyprompt>
-      <valueprompt>Enter the destination (Location; x; y)</valueprompt>      
-      <attribute>exitRoomDestination</attribute>
-      <expand/>
-    </control>
-
-    <control>
       <controltype>scriptdictionary</controltype>
       <caption>Exit Scripts</caption>
       <keyprompt>Which Exit Location is this for? (x; y)</keyprompt>      
-      <attribute>exitRoomDesc</attribute>
+      <attribute>exitRoomScript</attribute>
       <expand/>
     </control>
   </tab>
