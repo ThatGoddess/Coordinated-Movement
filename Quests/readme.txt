@@ -38,7 +38,7 @@ HasQuest also has three variations to check its current state. These are:
 
 QuestActive 	("ExampleName")		-	Checks if the Quest is both present and not completed yet
 QuestFinished	("ExampleName")		-	Checks if the Quest has been completed successfully
-QuestFailed		("ExampleName")		-	Checks if the Quest has been failed
+QuestFailed	("ExampleName")		-	Checks if the Quest has been failed
 
 
 And that's all, really! Thank you for using this library, feel free to write me if you think of a feature you'd like to see and go check out my Coordinate Based Movement System!
@@ -54,23 +54,23 @@ Quests; Questlog; Show Quests;		-	Displays the player's current and finished Que
 
 Functions:
 
-	Quest Control:
+Quest Control:
 
-	Quest add ("QuestName", "QuestDesc")					- 	Adds a Quest and gives it a short description. Will Log and continue if the quest already exists.
-	Goal add ("QuestName", "GoalName")						-	Adds a Goal to the specified Quest. If the Quest doesn't exist, it will Log and silently fail.
-	SubGaol add ("QuestName", "GoalName", "SubGoalName")	-	Adds a SubGoal to the specified Goal. Will Log and silently fail if Goal does not exist.
+Quest add ("QuestName", "QuestDesc")			- 	Adds a Quest and gives it a short description. Will Log and continue if the quest already exists.
+Goal add ("QuestName", "GoalName")			-	Adds a Goal to the specified Quest. If the Quest doesn't exist, it will Log and silently fail.
+SubGaol add ("QuestName", "GoalName", "SubGoalName")	-	Adds a SubGoal to the specified Goal. Will Log and silently fail if Goal does not exist.
 
-	Quest finish ("QuestName", Failed)						-	Finishes the specified Quest. If Failed is set to true, the Quest will count as failed. Will also finish goals and subgoals.
-	Goal finish ("QuestName", "GoalName")					-	Finishes the specified Goal. Will also finish subgoals.
-	Subgoal finish ("QuestName", "GoalName", "SubGoalName")	-	Finishes the specified SubGoal.
+Quest finish ("QuestName", Failed)			-	Finishes the specified Quest. If Failed is set to true, the Quest will count as failed. Will also finish goals and subgoals.
+Goal finish ("QuestName", "GoalName")			-	Finishes the specified Goal. Will also finish subgoals.
+Subgoal finish ("QuestName", "GoalName", "SubGoalName")	-	Finishes the specified SubGoal.
 
 
-	Query:
+Query:
 
-	HasQuest ("QuestName")									-	Checks if a Quest exists. Returns a Bool.
-	HasGoal ("QuestName", "GoalName")						-	Checks if a Goal exists. Will also check if the Quest exists. Returns a Bool.
-	HasSubGoal ("QuestName", "GoalName", "SubGoalName")		-	Checks if a SubGoal exists. Will also check for Quest and Goal. Returns a Bool.
+HasQuest ("QuestName")					-	Checks if a Quest exists. Returns a Bool.
+HasGoal ("QuestName", "GoalName")			-	Checks if a Goal exists. Will also check if the Quest exists. Returns a Bool.
+HasSubGoal ("QuestName", "GoalName", "SubGoalName")	-	Checks if a SubGoal exists. Will also check for Quest and Goal. Returns a Bool.
 
-	QuestActive 	("QuestName")							-	Checks if the Quest is both present and not completed yet
-	QuestFinished	("QuestName")							-	Checks if the Quest has been completed successfully
-	QuestFailed		("QuestName")							-	Checks if the Quest has been failed
+QuestActive 	("QuestName")				-	Checks if the Quest is both present and not completed yet
+QuestFinished	("QuestName")				-	Checks if the Quest has been completed successfully
+QuestFailed	("QuestName")				-	Checks if the Quest has been failed
