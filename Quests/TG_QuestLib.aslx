@@ -1,0 +1,567 @@
+<library>
+  <command name="Show Quests">
+    <pattern>Questlog; Quests; Quest; Show Quests;</pattern>
+    <script><![CDATA[
+      QuestInitial()
+
+      Menu = NewStringList()
+      list add (Menu, "Active Quests")
+      if (hasAttribute(TG_Quests, "FinishedQuests"))  {list add (Menu, "Finished Quests")}
+      if (hasAttribute(TG_Quests, "FailedQuests"))  {list add (Menu, "Failed Quests")}
+      list add (Menu, "Close Menu")
+
+      ShowMenu ("Which Quests do you want to view?", Menu, false) {
+
+        if(result = "Active Quests") {
+
+          Menu1 = NewStringList()
+
+          foreach (Key, TG_Quests.Quests) {list add (Menu1, Key)}
+
+          list add (Menu1, "Close Menu")
+
+          if (DictionaryCount(TG_Quests.Quests) > 0) {
+
+            ShowMenu("Currently active Quests:", Menu1, false) {
+
+              if (result <> "Close Menu") {
+
+                x = StringDictionaryItem(TG_Quests.QuestIndex, result)
+
+                msg("<b>" + result + "</b>")
+                msg("")
+                msg(StringDictionaryItem(TG_Quests.Quests, result))
+                msg("") 
+                msg("<b>Objectives:</b>")
+
+                foreach(i, GetAttribute (TG_Quests, "Tasks" + x)){
+                
+                  if (ListContains(GetAttribute(TG_Quests, "FinishedTasks" + x), i)) {msg("{s:" + i + "}")}
+                  else {msg(i)}
+
+                  if (hasAttribute(TG_Quests, "SubQuests" + x)) {
+                    if(not hasAttribute(TG_Quests, "FinishedSubQuests" + x)){set(TG_Quests, "FinishedSubQuests" + x, NewStringDictionary())}
+                    foreach(i2, GetAttribute(TG_Quests, "SubQuests" + x)){
+
+                      if(i = StringDictionaryItem(GetAttribute(TG_Quests, "SubQuests" + x), i2)){
+                        if(not DictionaryContains(GetAttribute(TG_Quests, "FinishedSubQuests" + x), i2)) {msg("- " + i2)}
+                        else{msg("- {s:" + i2 + "}")}
+                      }
+                    }
+                  }           
+                }
+              }
+            }
+          }
+          else {
+            msg("You don't have any active Quests at the moment.")
+          }
+          
+        }
+        else if(result = "Finished Quests") {
+
+          Menu1 = NewStringList()
+          foreach (Key, TG_Quests.FinishedQuests) {list add (Menu1, Key)}
+
+          list add (Menu1, "Close Menu")
+
+          ShowMenu("Finished Quests:", Menu1, false) {
+
+            if (result <> "Close Menu") {
+
+              x = "Tasks" + StringDictionaryItem(TG_Quests.QuestIndex, result)
+              y = "FinishedTasks" + StringDictionaryItem(TG_Quests.QuestIndex, result)
+
+              msg("<b>" + result + "</b>")
+              msg("")
+              msg(StringDictionaryItem(TG_Quests.FinishedQuests, result))
+              msg("")
+              msg("<b>Objectives:</b>")
+              foreach(i, GetAttribute(TG_Quests, "Tasks" + x)){
+                
+                msg("{s:" + i + "}")
+                
+
+                if (hasAttribute(TG_Quests, "SubQuests" + x)) {
+                  foreach(i2, GetAttribute(TG_Quests, "SubQuests" + x)){
+
+                    if(i = StringDictionaryItem(GetAttribute(TG_Quests, "SubQuests" + x), i2)){msg("- {s:" + i2 + "}")}
+
+                  }
+                }
+              } 
+            }
+          }
+        } 
+        else if(result = "Failed Quests") {
+
+
+          Menu1 = NewStringList()
+          foreach (Key, TG_Quests.FailedQuests) {list add (Menu1, Key)}
+
+          list add (Menu1, "Close Menu")
+
+          ShowMenu("Finished Quests:", Menu1, false) {
+
+
+
+            if (result <> "Close Menu") {
+
+              x = "Tasks" + StringDictionaryItem(TG_Quests.QuestIndex, result)
+              y = "FinishedTasks" + StringDictionaryItem(TG_Quests.QuestIndex, result)
+
+              msg("<b>" + result + "</b>")
+              msg("")
+              msg(StringDictionaryItem(TG_Quests.FailedQuests, result))
+              msg("")
+              msg("<b>Objectives:</b>")
+              foreach(i, GetAttribute(TG_Quests, "Tasks" + x)){
+                
+                msg("{s:" + i + "}")
+                
+
+                if (hasAttribute(TG_Quests, "SubQuests" + x)) {
+                  foreach(i2, GetAttribute(TG_Quests, "SubQuests" + x)){
+
+                    if(i = StringDictionaryItem(GetAttribute(TG_Quests, "SubQuests" + x), i2)){msg("- {s:" + i2 + "}")}
+
+                  }
+                }
+              } 
+            }
+          } 
+        }
+      }
+    ]]></script>
+  </command>
+  <function name="SubGoal add" parameters="QuestName, GoalName, SubGoal">
+    // SubGoal Add (QuestName, GoalName, SubGoal)
+    QuestInitial
+    if (HasGoal(QuestName, GoalName)) {
+      x = "SubQuests" + StringDictionaryItem(TG_Quests.QuestIndex, QuestName)
+      if (hasAttribute(TG_Quests, x) = false) {
+        set (TG_Quests, x, NewStringDictionary())
+      }
+      if (not HasSubGoal(QuestName, GoalName, SubGoal)) {
+        dictionary add (getAttribute(TG_Quests, x), SubGoal, GoalName)
+        Log ("[QUESTS] Created new SubGoal for Quest \"" + QuestName + "\"")
+      }
+      else {
+        Log ("[QUESTS] [ERROR] SubGoal \"" + SubGoal + "\" already exists.")
+      }
+    }
+  </function>
+  <function name="SubGoal finish" parameters="QuestName, GoalName, SubGoal">
+    // SubGoal finish (QuestName, GoalName, SubGoal)
+    QuestInitial
+    if (HasSubGoal(QuestName, GoalName, SubGoal)) {
+      x = "FinishedSubQuests" + StringDictionaryItem(TG_Quests.QuestIndex, QuestName)
+      if (not hasAttribute(TG_Quests, x)) {
+        set (TG_Quests, x, NewStringDictionary())
+      }
+      if (not DictionaryContains(GetAttribute(TG_Quests, x), SubGoal)) {
+        dictionary add (getAttribute(TG_Quests, x), SubGoal, QuestName)
+      }
+    }
+    else {
+      Log ("[QUESTS] Subgoal \"" + SubGoal + "\" doesn't exist (yet).")
+    }
+  </function>
+  <function name="HasQuest" parameters="QuestName" type="boolean">
+    // HasQuest (QuestName)
+    QuestInitial
+    if (QuestName in TG_Quests.QuestIndex) {
+      return (True)
+    }
+    else {
+      return (False)
+    }
+  </function>
+  <function name="HasGoal" parameters="QuestName, GoalName" type="boolean">
+    // HasGoal (QuestName, GoalName)
+    if (HasQuest(QuestName)) {
+      x = "Tasks" + StringDictionaryItem(TG_Quests.QuestIndex, QuestName)
+      if(ListContains(GetAttribute(TG_Quests, x), GoalName)) {return(true)}
+      else {
+        return (false)
+      }
+    }
+    else {
+      return (false)
+    }
+  </function>
+  <function name="HasSubGoal" parameters="QuestName, GoalName, SubGoal" type="boolean">
+    // HasSubGoal (QuestName, GoalName, SubGoal)
+    if (HasQuest(QuestName) and HasGoal(QuestName, GoalName)) {
+      x = "SubQuests" + StringDictionaryItem(TG_Quests.QuestIndex, QuestName)
+      if(DictionaryContains(GetAttribute(TG_Quests, x), SubGoal)) {return(true)}
+      else {
+        return (false)
+      }
+    }
+    else {
+      return (false)
+    }
+  </function>
+  <function name="Goal add" parameters="QuestName, GoalName">
+    // Goal add (QuestName, GoalName)
+    QuestInitial
+    x = "Tasks" + StringDictionaryItem(TG_Quests.QuestIndex, QuestName)
+    if (HasQuest(QuestName)) {
+      if (not HasGoal(QuestName, GoalName)) {
+        list add (GetAttribute(TG_Quests, x), GoalName)
+        Log ("[QUESTS] Created new Goal for Quest \"" + QuestName + "\"")
+      }
+      else {
+        Log ("[QUESTS] [ERROR] Goal \"" + GoalName + "\" already exists.")
+      }
+    }
+    else {
+      Log ("[QUESTS] [ERROR] Quest \"" + QuestName + "\" does not exist (yet).")
+    }
+  </function>
+  <function name="Goal finish" parameters="QuestName, GoalName">
+    // Goal finish (QuestName, GoalName)
+    QuestInitial
+    x = "FinishedTasks" + StringDictionaryItem(TG_Quests.QuestIndex, QuestName)
+    y = "SubQuests" + StringDictionaryItem(TG_Quests.QuestIndex, QuestName)
+    if (HasGoal(QuestName, GoalName)) {
+      if (not ListContains(GetAttribute(TG_Quests, x), GoalName)) {
+        // Finishing SubQuests
+        if (hasAttribute(TG_Quests, y)) {
+          foreach (key, GetAttribute(TG_Quests, y)) {
+            if (StringDictionaryItem(GetAttribute(TG_Quests, y), key) = GoalName) {
+              SubGoal finish (QuestName, GoalName, key)
+            }
+          }
+        }
+        list add (GetAttribute(TG_Quests, x), GoalName)
+        Log ("[QUESTS] Finished Goal for Quest \"" + QuestName + "\"")
+      }
+    }
+    else {
+      Log ("[QUESTS] [ERROR] Either Quest \"" + QuestName + "\" or Goal \"" + GoalName + "\" do not exist (yet).")
+    }
+  </function>
+  <function name="Quest add" parameters="QuestName, QuestDescription">
+    // Quest add (QuestName, QuestDescription)
+    QuestInitial
+    if (HasQuest(QuestName)) {
+      Log ("[QUESTS] [ERROR] Quest \"" + QuestName + "\" already exists.")
+    }
+    else {
+      dictionary add (TG_Quests.Quests, QuestName, QuestDescription)
+      x = ToString(DictionaryCount(TG_Quests.QuestIndex))
+      dictionary add (TG_Quests.QuestIndex, QuestName, x)
+      set (TG_Quests, "Tasks" + x, NewStringList())
+      set (TG_Quests, "FinishedTasks" + x, NewStringList())
+      Log ("[QUESTS] Quest \"" + QuestName + "\" has been assigned.")
+    }
+  </function>
+  <function name="Quest finish">
+    // Quest finish (QuestName, Failed)
+    QuestInitial
+    if (Failed = True) {
+      if (hasAttribute(TG_Quests, "FailedQuests") = False ) {
+        TG_Quests.FailedQuests = NewStringDictionary()
+      }
+      dictionary add (TG_Quests.FailedQuests, QuestName, StringDictionaryItem (TG_Quests.Quests, QuestName))
+    }
+    else {
+      if (hasAttribute(TG_Quests, "FinishedQuests") = False) {
+        TG_Quests.FinishedQuests = NewStringDictionary()
+      }
+      dictionary add (TG_Quests.FinishedQuests, QuestName, StringDictionaryItem (TG_Quests.Quests, QuestName))
+    }
+    // Finishing Tasks
+    foreach (i, GetAttribute(TG_Quests, "Tasks" + StringDictionaryItem(TG_Quests.QuestIndex, QuestName))) {
+      if (not i in GetAttribute(TG_Quests, "FinishedTasks" + StringDictionaryItem(TG_Quests.QuestIndex, QuestName))) {
+        Goal finish (QuestName, i)
+      }
+    }
+    dictionary remove (TG_Quests.Quests, Name)
+  </function>
+  <function name="QuestActive" parameters="QuestName" type="boolean">
+    // QuestActive(QuestName)
+    QuestInitial
+    if (QuestName in game.Quests) {
+      return (True)
+    }
+    else {
+      return (False)
+    }
+  </function>
+  <function name="QuestFailed" parameters="QuestName" type="boolean">
+    // QuestFailed(QuestName)
+    QuestInitial
+    if (hasAttribute(TG_Quests, "FailedQuests")) {
+      if (QuestName in TG_Quests.FinsihedQuests) {
+        return (True)
+      }
+      else {
+        return (False)
+      }
+    }
+    else {
+      return (False)
+    }
+  </function>
+  <function name="QuestFinished" parameters="QuestName" type="boolean">
+    // QuestFinished (QuestName)
+    QuestInitial
+    if (hasAttribute(TG_Quests, "FinishedQuests")) {
+      if (Name in TG_Quests.FinsihedQuests) {
+        return (True)
+      }
+      else {
+        return (False)
+      }
+    }
+    else {
+      return (False)
+    }
+  </function>
+  <function name="QuestInitial">
+    firsttime {
+      if (GetObject ("TG_Quests") = Null) {
+        create ("TG_Quests")
+      }
+      if (hasAttribute(TG_Quests, "Quests") = False) {
+        TG_Quests.Quests = NewStringDictionary()
+      }
+      if (hasAttribute(TG_Quests, "QuestIndex") = False) {
+        TG_Quests.QuestIndex = NewStringDictionary()
+      }
+    }
+  </function>
+
+
+ <editor>
+    <appliesto>(function)Quest add</appliesto>
+    <display>Create Quest #0 with description #1 and goal #2</display>
+    <category>Quests</category>
+    <create>Quest add ("","","")</create>
+    <add>Add Quest</add>
+ 
+    <control>
+      <controltype>label</controltype>
+      <caption>Create</caption>
+    </control>
+ 
+    <control>
+      <controltype>expression</controltype>
+      <attribute>0</attribute>
+      <simple>Quest</simple>
+      <simpleeditor>textbox</simpleeditor>
+    </control>
+
+    <control>
+      <controltype>label</controltype>
+      <caption>with</caption>
+    </control>
+
+    <control>
+      <controltype>expression</controltype>
+      <attribute>1</attribute>
+      <simple>description</simple>
+      <simpleeditor>textbox</simpleeditor>
+    </control>
+
+    <control>
+      <controltype>label</controltype>
+      <caption>and</caption>
+    </control>
+
+    <control>
+      <controltype>expression</controltype>
+      <attribute>2</attribute>
+      <simple>goal</simple>
+      <simpleeditor>textbox</simpleeditor>
+    </control>
+
+ </editor>
+
+ <editor>
+    <appliesto>(function)Quest finish</appliesto>
+    <display>End Quest #0 because it was failed #1</display>
+    <category>Quests</category>
+    <create>Quest finish("", false)</create>
+    <add>Finish Quest</add>
+ 
+    <control>
+      <controltype>label</controltype>
+      <caption>Finish Quest</caption>
+    </control>
+ 
+    <control>
+      <controltype>expression</controltype>
+      <attribute>0</attribute>
+      <simple>Text</simple>
+      <simpleeditor>textbox</simpleeditor>
+    </control>
+
+    <control>
+      <controltype>label</controltype>
+      <caption>because the Quest failed</caption>
+    </control>
+
+     <control>
+       <controltype>expression</controltype>
+       <attribute>1</attribute>
+       <simpleeditor>boolean</simpleeditor>
+     </control>
+ </editor>
+
+ <editor>
+    <appliesto>(function)Goal add</appliesto>
+    <display>Add Goal #1 to Quest #0</display>
+    <category>Quests</category>
+    <create>Goal add("", "")</create>
+    <add>Add Goal</add>
+ 
+    <control>
+      <controltype>label</controltype>
+      <caption>Add Goal</caption>
+    </control>
+ 
+    <control>
+      <controltype>expression</controltype>
+      <attribute>1</attribute>
+      <simple>Text</simple>
+      <simpleeditor>textbox</simpleeditor>
+    </control>
+
+    <control>
+      <controltype>label</controltype>
+      <caption>to Quest</caption>
+    </control>
+
+    <control>
+      <controltype>expression</controltype>
+      <attribute>0</attribute>
+      <simple>Text</simple>
+      <simpleeditor>textbox</simpleeditor>
+    </control>
+ </editor>
+
+ <editor>
+    <appliesto>(function)Goal finish</appliesto>
+    <display>Remove Goal #1 from Quest #0</display>
+    <category>Quests</category>
+    <create>Goal finish ("", "")</create>
+    <add>Finish Goal</add>
+ 
+    <control>
+      <controltype>label</controltype>
+      <caption>Remove Goal</caption>
+    </control>
+ 
+    <control>
+      <controltype>expression</controltype>
+      <attribute>1</attribute>
+      <simple>Text</simple>
+      <simpleeditor>textbox</simpleeditor>
+    </control>
+
+    <control>
+      <controltype>label</controltype>
+      <caption>from Quest</caption>
+    </control>
+
+    <control>
+      <controltype>expression</controltype>
+      <attribute>0</attribute>
+      <simple>Text</simple>
+      <simpleeditor>textbox</simpleeditor>
+    </control>
+ </editor>
+
+ <editor>
+    <appliesto>(function)SubGoal add</appliesto>
+    <display>Add SubGoal #2 to Goal #1 of Quest #0</display>
+    <category>Quests</category>
+    <create>SubGoal add("", "", "")</create>
+    <add>Add SubGoal</add>
+ 
+    <control>
+      <controltype>label</controltype>
+      <caption>Add Subgoal</caption>
+    </control>
+ 
+    <control>
+      <controltype>expression</controltype>
+      <attribute>2</attribute>
+      <simple>Text</simple>
+      <simpleeditor>textbox</simpleeditor>
+    </control>
+
+    <control>
+      <controltype>label</controltype>
+      <caption>to Goal</caption>
+    </control>
+
+    <control>
+      <controltype>expression</controltype>
+      <attribute>1</attribute>
+      <simple>Text</simple>
+      <simpleeditor>textbox</simpleeditor>
+    </control>
+
+    <control>
+      <controltype>label</controltype>
+      <caption>of Quest</caption>
+    </control>
+
+    <control>
+      <controltype>expression</controltype>
+      <attribute>0</attribute>
+      <simple>Text</simple>
+      <simpleeditor>textbox</simpleeditor>
+    </control>
+ </editor> 
+
+  <editor>
+    <appliesto>(function)SubGoal finish</appliesto>
+    <display>Finish SubGoal #2 of Goal #1 of Quest #0</display>
+    <category>Quests</category>
+    <create>SubGoal add("", "", "")</create>
+    <add>Add Subgoal</add>
+ 
+    <control>
+      <controltype>label</controltype>
+      <caption>Finish SubGoal</caption>
+    </control>
+ 
+    <control>
+      <controltype>expression</controltype>
+      <attribute>2</attribute>
+      <simple>Text</simple>
+      <simpleeditor>textbox</simpleeditor>
+    </control>
+
+    <control>
+      <controltype>label</controltype>
+      <caption>of Goal</caption>
+    </control>
+
+    <control>
+      <controltype>expression</controltype>
+      <attribute>1</attribute>
+      <simple>Text</simple>
+      <simpleeditor>textbox</simpleeditor>
+    </control>
+
+    <control>
+      <controltype>label</controltype>
+      <caption>of Quest</caption>
+    </control>
+
+    <control>
+      <controltype>expression</controltype>
+      <attribute>0</attribute>
+      <simple>Text</simple>
+      <simpleeditor>textbox</simpleeditor>
+    </control>
+ </editor> 
+
+</library>
